@@ -44,8 +44,41 @@ func createTrader (w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Trader Created", t.Name, t.Email)
 }
 
+func getTrader (w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		fmt.Fprintln(w, "Only GET method is allowed here")
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		fmt.Fprintln(w, "Please provide a trader id, e.g. ?id=1")
+		return
+	}
+
+	fmt.Fprintln(w, "You successfully requested trader id")
+}
+
+func createTrade (w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		fmt.Fprintln(w, "Only POST method is allowed here")
+		return
+	}
+
+	var t Trade
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		fmt.Fprintln(w, "Error reading data", err)
+		return
+	}
+
+	fmt.Fprintln(w, "Trade Entered", t.Asset, t.Direction, t.TraderID)
+}
+
 func main () {
 	http.HandleFunc("/traders", createTrader)
+	http.HandleFunc("/traders/get", getTrader)
+	http.HandleFunc("/trades", createTrade)
 	fmt.Println("Server running on port 8080...")
 	http.ListenAndServe(":8080", nil)
 }
