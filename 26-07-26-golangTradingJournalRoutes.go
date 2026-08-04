@@ -35,14 +35,15 @@ var traderProfiles []TraderProfile
 
 func createTrader (w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		fmt.Fprintln(w, "Only POST method is allowed here")
+		http.Error(w, "Only POST method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var t Trader
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		fmt.Fprintln(w, "Error reading data", err)
+		fmt.Println("Decode error:", err)
+		http.Error(w, "Error reading data", http.StatusBadRequest)
 		return
 	}
 
@@ -52,19 +53,19 @@ func createTrader (w http.ResponseWriter, r *http.Request) {
 
 func getTrader (w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		fmt.Fprintln(w, "Only GET method is allowed here")
+		http.Error(w, "Only GET method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		fmt.Fprintln(w, "Please provide a trader id, e.g. ?id=1")
+		http.Error(w, "Please provide a trader id, e.g. ?id=1", http.StatusBadRequest)
 		return
 	}
 	
 	idNum, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Fprintln(w, "Invalid id format")
+		http.Error(w, "Invalid id format", http.StatusBadRequest)
 		return
 	}
 
@@ -75,19 +76,20 @@ func getTrader (w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintln(w, "Trader not found")
+	http.Error(w, "Trader not found", http.StatusNotFound)
 }
 
 func createTrade (w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		fmt.Fprintln(w, "Only POST method is allowed here")
+		http.Error(w, "Only POST method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var t Trade
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		fmt.Fprintln(w, "Error reading data", err)
+		fmt.Println("Decode error:", err)
+		http.Error(w, "Error reading data", http.StatusBadRequest)
 		return
 	}
 
@@ -97,19 +99,19 @@ func createTrade (w http.ResponseWriter, r *http.Request) {
 
 func getTrade(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		fmt.Fprintln(w, "Only GET method is allowed here")
+		http.Error(w, "Only GET method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		fmt.Fprintln(w, "Please provide a trade id, e.g. ?id=1")
+		http.Error(w, "Please provide a trade id, e.g. ?id=1", http.StatusBadRequest)
 		return
 	}
 
 	idNum, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Fprintln(w, "Invalid id format")
+		http.Error(w, "Invalid id format", http.StatusBadRequest)
 		return
 	}
 
@@ -120,19 +122,20 @@ func getTrade(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintln(w, "Trade not found")
+	http.Error(w, "Trade not found", http.StatusNotFound)
 }
 
 func createTraderProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		fmt.Fprintln(w, "Only POST method is allowed here")
+		http.Error(w, "Only POST method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var t TraderProfile
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		fmt.Fprintln(w, "Error reading data", err)
+		fmt.Println("Decode error:", err)
+		http.Error(w, "Error reading data", http.StatusBadRequest)
 		return
 	}
 
@@ -142,19 +145,19 @@ func createTraderProfile(w http.ResponseWriter, r *http.Request) {
 
 func getTraderProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		fmt.Fprintln(w, "Only GET method is allowed here")
+		http.Error(w, "Only GET method is allowed here", http.StatusMethodNotAllowed)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		fmt.Fprintln(w, "Please provide a trader profile id, e.g. ?id=1")
+		http.Error(w, "Please provide a trader profile id, e.g. ?id=1", http.StatusBadRequest)
 		return
 	}
 
 	idNum, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Fprintln(w, "Invalid id format")
+		http.Error(w, "Invalid id format", http.StatusBadRequest)
 		return
 	}
 
@@ -165,7 +168,7 @@ func getTraderProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintln(w, "Profile not found")
+	http.Error(w, "Profile not found", http.StatusNotFound)
 }
 
 func main () {
@@ -176,5 +179,8 @@ func main () {
 	http.HandleFunc("/traderprofile", createTraderProfile)
 	http.HandleFunc("/traderprofile/get", getTraderProfile)
 	fmt.Println("Server running on port 8080...")
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+    fmt.Println("Server failed to start:", err)
+	}
 }
